@@ -9,12 +9,12 @@ _Following recent research agenda, I got nothing digging for decent full-range d
 Download dashboard using wget or any preferable method.
 
 ```sh
-wget https://raw.githubusercontent.com/matsuro-hadouken/gg/main/substrate-custom-debug.json
+wget https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/substrate-custom-debug.json
 ```
 
 In Grafana:
 
-Dashboards => New => Import
+`Dashboards => New => Import`
 
 Select: `substrate-custom-debug.json`
 
@@ -22,8 +22,9 @@ Adjust variables if required
 
 ## What to expect ?
 
-
+![Screenshot](https://github.com/matsuro-hadouken/substrate-tools/blob/main/substrate-custom-debug.png?raw=true)
 
 ### To do list
 
-_Add multiple instances selector for Prometheus job_
+* _Add multiple instances selector for Prometheus job_
+* _Clean up_

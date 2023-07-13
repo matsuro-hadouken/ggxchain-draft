@@ -9,7 +9,7 @@ _Following recent research agenda, I got nothing digging for decent full-range d
 Download dashboard using wget or any preferable method.
 
 ```sh
-wget https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/substrate-custom-debug.json
+wget https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/grafana_custom_dashboard/substrate-custom-debug.json
 ```
 
 In Grafana:

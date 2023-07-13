@@ -22,9 +22,9 @@ Adjust variables if required
 
 ## What to expect ?
 
-![Screenshot](https://github.com/matsuro-hadouken/substrate-tools/blob/main/substrate-custom-debug.png?raw=true)
+![Screenshot](https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/grafana_custom_dashboard/substrate-custom-debug.png?raw=true)
 
 ### To do list
 
-* _Add multiple instances selector for Prometheus job_
+* ~~_Add multiple instances selector for Prometheus job_~~
 * _Clean up_

@@ -11,18 +11,19 @@ In this tutorial, we will guide you through the installation of the GGX node usi
 The primary objective of this setup is to establish a high-performance validator. As such, it is crucial to ensure that all system resources are exclusively dedicated to our application. Deploying the application within a Docker environment is generally not recommended as each virtualization layer introduces overhead and can diminish validator performance. For optimal performance, we highly recommend running only one validator per dedicated hardware instance.
 
 #### A little guidance for choosing hardware:
-* _Intel Ice Lake, or newer (Xeon or Core series); AMD Zen3 or above_
+* _Reasonable Modern Linux distro ( Debian, Ubuntu )_
+* _AMD Zen3 or above, Intel Ice Lake, or newer (Xeon or Core series)_
 * _4 physical cores @ 3.4GHz or above_
 * _Simultaneous multithreading disabled_
 * _Prefer single-threaded performance over higher cores count_
-* _Enterprise NVMe SSD 512GB ( should be reasonably sized to deal with blockchain growth )_
+* _Enterprise NVMe SSD 512GB+ ( the sizing needs to be proportionate to accommodate the growing size of the blockchain )_
 * _32 GB DDR4 ECC_
 * _Latest Linux Kernel_
-* _100Mb/s minimum symmetric networking speed_
+* _A minimum symmetric networking speed of 100Mb/s is required._
 
 ### Preparation:
 
-_Assume we login as our administration user who is a member of sudo group, let's go !_
+_Assume we logged in as our administration user who is a member of sudo group, let's go !_
 
 ```sh
 # system upgrade
@@ -42,7 +43,7 @@ sudo apt install librust-clang-sys-dev
 ```sh
 # Set Rust Toolchain and node binary version
 # Please, always check which versions is currently recommended
-# The entries below can be accidently outdated and lead to unpredictable consequences
+# The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2022-12-20'
 GGX_NODE_VERSION='v1.0.0'
 ```
@@ -87,16 +88,18 @@ sudo su - ggx_user
 cd ~ && git clone https://github.com/ggxchain/ggxnode.git
 cd ggxnode && git fetch --all --tags && git pull
 ```
+
 ```sh
 # Checkout required version ( please double check across available resources )
 git checkout ${GGX_NODE_VERSION}
 ```
+
 ```sh
 # Build
 cargo build --release --features="fast-runtime"
 ```
 
-If build doesn't succeed for any reason, contact community validators on [Dicord](https://discord.gg/ggx)
+If the build fails to succeed for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.
 
 ### Server configuration
 
@@ -110,7 +113,7 @@ In order to ensure the provisioning of necessary resources, it is imperative to 
 
 At the time of writing this documentation, the network is in the early testnet stage. Certain variables, such as `endpoints domains`, `bootnodes`, and `telemetry`, may undergo multiple changes. To streamline the adjustment of these parameters, we will create a configuration file and include it in the systemd unit configuration. This approach enables more coherent and organized management of these parameters in a transparent and readable manner, ensuring the freshness and accuracy of the values.
 
-  **Please ALWAYS validate essential components for node deployment. Here is little checklist:**
+**Prior to deploying the node, it is crucial to thoroughly validate all essential parameters. Here is a handy checklist to ensure a smooth deployment:**
 
 * _Node binary version_
 * _Rust toolchain version_
@@ -118,11 +121,11 @@ At the time of writing this documentation, the network is in the early testnet s
 * _Correct telemetry link_
 * _Legit chainspec json file_
 
-_Good place to confirm this values is our [Dicord](https://discord.gg/ggx) server_
+_Good place to confirm this is GGXChain public [Dicord](https://discord.gg/ggx) server_
 
-### Folders & Names
+#### Folders & Names
 
-* _Make sure user have full R/W permissions !_
+* **_Please ensure that `ggx_user` user has read and write permissions._**
 
 ```sh
 # Create binary home
@@ -134,8 +137,9 @@ mkdir -p "${HOME}/bin"
 echo 'export PATH="${HOME}/bin:$PATH"' >>.bashrc && . .bashrc
 ```
 
-_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. Make sure user have R/W permission._
-_`<NODE NAME>`_ is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example.
+_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. `<NODE NAME>` is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example._
+
+Currently, we are on the Sydney test network as of the time of writing. However, you can set it to your preferred location.
 
 ```sh
 # Create data folder aka BASE_PATH ( we will need this later, remember )
@@ -146,11 +150,6 @@ mkdir -p ${BASE_PATH}
 ```sh
 # Path to store node key
 mkdir -p ${HOME}/.node-key/
-```
-
-```sh
-# Create unit environment config
-nano ${HOME}/bin/node.conf
 ```
 
 #### Make symlink to previously compiled binary
@@ -176,6 +175,13 @@ Thing to keep in mind when crafting this configuration file:
 * Variables which can change anytime `BOOT_NODES`, `TELEMETRY_URL` _( always double check )_
 * `NODE_KEY_FILE` you on your own on how to manage your `node.key`. Please follow best practices. Never stop research and improving security.
 * `WS_PORT` `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
+
+```sh
+# Create unit environment file
+nano ${HOME}/bin/node.conf
+```
+
+Add the content below, make sure everything up to date
 
 ```js
 RPC_METHODS=unsafe
@@ -275,6 +281,7 @@ ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} \
         --node-key-type ed25519 \
         --node-key-file ${NODE_KEY_FILE} \
         --log ${LOG_LEVEL} \
+        --wasm-execution Compiled \
         --rpc-methods ${RPC_METHODS} \
         --rpc-cors "localhost" \
         --rpc-port ${RPC_PORT} \
@@ -309,25 +316,26 @@ sudo systemctl start ggx-node.service && sudo journalctl -fu ggx-node.service -o
 
 * _Logs should populate console screen by now, follow `monitoring` and `debugging` section of the documentation from here._
 
-Have fun ! And if you think we can improve this documentation feel free to collaborate, talk to us.
-
 **_A little summary of what we just deployed:_**
 
-* `WS Socket`     bond to host on port `$WS_PORT` in a safe mod.
-* `HTTP RPC`      bond to host and exposed on port `$RPC_PORT`, set to unsafe for interaction.
-* `Prometheus`    bond to host and exposed on port `$PROMETHEUS_PORT`
-* `Consensus P2P` bond to all interfaces and available on port `$CONSENSUS_P2P`
-* This node is passive observer, validator require additional flags here `/etc/systemd/system/ggx-node.service`
+* `WS Socket`     _bond to host on port `$WS_PORT` in a safe mod_
+* `HTTP RPC`      _bond to host and exposed on port `$RPC_PORT`, set to unsafe_
+* `Prometheus`    _bond to host and exposed on port `$PROMETHEUS_PORT`_
+* `Consensus P2P` _bond to all interfaces and available on port `$CONSENSUS_P2P`_
+
+**Validator**
+
+* _This node is passive observer, validator require additional flag to be passed here `/etc/systemd/system/ggx-node.service`_
 
 ```sh
-        --validator \
-        --wasm-execution Compiled \
+        --validator
 ```
-* To execute `author_rotateKeys` method, execute:
-
+* To perform the `author_rotateKeys`, execute:
 ```sh
 curl -H "Content-Type: application/json" \
      -d '{"id":1, "jsonrpc":"2.0", "method": "author_rotateKeys", "params":[]}' \
       http://localhost:$RPC_PORT
 ```
-* After successful `author_rotateKeys` execution, set `$RPC_METHODS` to `safe` and restart _ggx-node.service_
+* After successful call, set `$RPC_METHODS` to `safe` and restart _`ggx-node.service`_
+
+**Have fun ! And if you think we can improve this documentation feel free to collaborate, [talk to us](https://discord.gg/ggx).**

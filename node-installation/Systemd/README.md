@@ -139,8 +139,6 @@ echo 'export PATH="${HOME}/bin:$PATH"' >>.bashrc && . .bashrc
 
 _At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. `<NODE NAME>` is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example._
 
-Currently, we are on the Sydney test network as of the time of writing. However, you can set it to your preferred location.
-
 ```sh
 # Create data folder aka BASE_PATH ( we will need this later, remember )
 BASE_PATH="${HOME}/data-sydney/<NODE NAME>"

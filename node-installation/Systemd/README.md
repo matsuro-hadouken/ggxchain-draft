@@ -2,6 +2,7 @@
 
 If you are viewing this from the console, here is the permanent link for better readability and convenience.
 https://github.com/matsuro-hadouken/golden-gate-stash/tree/main/node-installation/Systemd
+Repository: https://github.com/ggxchain/ggxnode
 
 ### Introduction:
 

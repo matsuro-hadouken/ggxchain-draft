@@ -60,7 +60,7 @@ sudo su - ggx_user
 ```sh
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
-RUST_TOOLCHAIN='nightly-2022-12-20'
+RUST_TOOLCHAIN='nightly-2023-08-19'
 GGX_NODE_VERSION='v1.0.0'
 ```
 
@@ -98,7 +98,7 @@ cd ggxnode && git fetch --all --tags && git pull
 ```
 
 ```sh
-# Checkout required version ( please double check across available resources )
+# Checkout required version ( please cross-check )
 git checkout ${GGX_NODE_VERSION}
 ```
 

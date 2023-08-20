@@ -1,4 +1,3 @@
-# DRAFT
 ## GGX Chain Systemd Installation Guide
 
 If you are viewing this from the console, here is the permanent link for better readability and convenience.
@@ -28,7 +27,12 @@ _Assume we logged in as our administration user who is a member of sudo group, l
 
 ```sh
 # system upgrade
-sudo apt update && sudo apt upgrade
+sudo apt update && sudo apt upgrade -y
+```
+
+* _Reboot server_
+
+```sh
 sudo apt install git wget curl jq
 ```
 

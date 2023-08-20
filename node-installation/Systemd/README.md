@@ -41,6 +41,20 @@ sudo apt install libssl-dev
 sudo apt install librust-clang-sys-dev
 ```
 
+* **Create user**
+
+This user should not be granted login privileges and should not be allowed to set any passwords.
+
+```sh
+# Create dedicated no-login user
+sudo adduser --disabled-login --disabled-password ggx_user
+```
+
+```sh
+# get user shell ( stay here untill we ready to start node )
+sudo su - ggx_user
+```
+
 ```sh
 # Set Rust Toolchain and node binary version
 # Please, always check which versions is currently recommended
@@ -73,16 +87,6 @@ cargo install cargo-dylint dylint-link
 ```
 
 ### Installation:
-
-```sh
-# Create dedicated no-login user
-sudo adduser --disabled-login --disabled-password ggx_user
-```
-
-```sh
-# get user shell ( stay here untill we ready to start node )
-sudo su - ggx_user
-```
 
 ```sh
 # Clone repository

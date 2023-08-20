@@ -61,7 +61,7 @@ sudo su - ggx_user
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2023-08-19'
-GGX_NODE_VERSION='v1.0.0'
+GGX_NODE_VERSION='0.1.0'
 ```
 
 * **Rust toolchain and additional components**
@@ -155,7 +155,7 @@ mkdir -p ${BASE_PATH}
 
 ```sh
 # Path to store node key
-mkdir -p ${HOME}/.node-key/
+mkdir -p ${HOME}/.node-key && chmod 0700 ${HOME}/.node-key
 ```
 
 #### Make symlink to previously compiled binary
@@ -343,5 +343,51 @@ curl -H "Content-Type: application/json" \
       http://localhost:$RPC_PORT
 ```
 * After successful call, set `$RPC_METHODS` to `safe` and restart _`ggx-node.service`_
+
+#### Node Upgrade
+
+GGXChain offers the convenience of seamless upgrades without any downtime for validators. While detailed coverage of this feature is not within the scope of this particular discussion, you can find comprehensive information on this topic in our documentation portal.
+
+Traditional binary upgrades require a few straightforward steps. However, before proceeding, it is essential to determine the required version for the procedure. In case the upgrade is scheduled for a specific time, it is recommended to double-check the exact timing. Once all the necessary information is confirmed, follow the simple sequence of steps outlined below:
+
+```sh
+# get user shell ( stay here untill restart is required )
+sudo su - ggx_user
+```
+```sh
+# Set version we want to apply
+GGX_NODE_VERSION='<version>'
+```
+```sh
+# pull recent changes
+cd ${HOME}/ggxnode && git fetch --all --tags && git pull
+```
+```sh
+# Checkout
+git checkout ${GGX_NODE_VERSION}
+```
+```sh
+# Build
+cargo build --release --features="fast-runtime"
+```
+
+```sh
+# Confirm builded version matching our expectation
+ggxchain-node version
+```
+
+After restart node will switch on new version.
+
+```sh
+# Exit from current non-sudo user shell
+exit
+```
+```sh
+# Reload configuration
+sudo systemctl daemon-reload
+```
+```sh
+sudo systemctl restart ggx-node.service; sudo journalctl -fu ggx-node.service -o cat
+```
 
 **Have fun ! And if you think we can improve this documentation feel free to collaborate, [talk to us](https://discord.gg/ggx).**

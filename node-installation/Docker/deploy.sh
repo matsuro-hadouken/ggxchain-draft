@@ -1,22 +1,18 @@
 #!/bin/bash
 
-# This script theoretically deploy GoldenGate node
-
-# Is 'NOT recommended' to run docker Substrate in production. We do this for development and testing porpoise only.
-
 # 'Requirements:'
 # Debian base OS with Docker and Git
-# non-root user 'adduser <user_name>', user need to be in a docker group. 'usermod -aG docker <user_name>'
 
-# to build image ( this will takes forever ), login as dedicated user,
-# 'cd $HOME && git clone https://github.com/GoldenGateGGX/golden-gate.git'
-# 'cd golden-gate && docker build -f Dockerfile.sydney -t golden-gate-node .'
+# to build image ( this will takes forever )
+# 'cd ~ && git clone https://github.com/ggxchain/ggxnode.git'
+# 'cd ggxnode && git fetch --all --tags && git pull'
+# 'docker build -f Dockerfile.sydney -t ggx-node .'
 
 # 'CONFIGURATION ==>'
 
-node_name="Node Name Here"                 # it will be visible on telemetry
+node_name="Node Name Here"  # mandatory, it will be visible on telemetry
 
-container_name="golden_gate_node_1"        # container name to identify
+container_name="ggxnode"    # container name to identify
 
 # all ports can be customized, including consensus port ( we do not use 'ws' in this deployment sorry )
 http_port=9933        # default - 9933
@@ -32,19 +28,24 @@ data_folder_path="${HOME}/${global_storage_folder}/${container_name}"
 # Docker image ( we will build this manualy because no releases available )
 # As we do not have any release tags or versions, we build master 'in hope' it will just works. However, some breaking changes can lead to disaster.
 # In case of disaster - need to bruteforce current working commit relaying on recent accepted pull requests ( something like this )
-DockerImageName="golden-gate-node"
+DockerImageName="ggx-node"
 
-# HTTP endpoint is required for keys_rotation method execution, HTTP endpoint exposed on 127.0.0.1 interface,
-# however, after keys rotation procedure, RPC should be protected. Please 'follow best security practice'.
-# Security 'is not' in a scope of this tutorial script.
-# To be able to proceed keys rotation we need '--rpc-methods unsafe' and '--unsafe-rpc-external' this is practically security vulnerability
-# you should restart node without this flags. Prometheus exposed on 127.0.0.1, remove prometheus related flags if not required.
+# To proceed with the execution of the `author_rotateKeys` method, an HTTP endpoint is required. Presently, the
+# HTTP endpoint is accessible through the 127.0.0.1 interface.
+# However, it is important to emphasize that once the keys rotation procedure is completed,it becomes essential to protect the RPC to ensure secure communication.
+# It is strongly advised to adhere to industry best practices for securing the RPC endpoint.
+# While this tutorial script does not cover the specific security aspects in detail, it is expected that
+# professionals and individuals familiar with engineering and DevOps practices will prioritize and implement the necessary security measures.
+
+# Please ensure that values for `BOOTNODES` and `TELEMETRY_URL` are up to date and accurate
+BOOTNODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcGcoSJcoyhtTZEWi1n'
+TELEMETRY_URL='wss://test.telemetry.sydney.ggxchain.io/submit'
 
 # -------------------------------------  ' END OF CONFIG ' ------------------------------------------------------
 
 # Should not be run as root
 if [[ $EUID -eq 0 ]]; then
-    echo && echo "This script cannot be run as root." && echo
+    echo && echo "Sorry, but this script cannot be run as root" && echo
     exit 1
 fi
 
@@ -58,13 +59,13 @@ echo " Deploying new container ..." && echo
 
 mkdir -p "${data_folder_path}" # create data directory for this particular node
 
-cd "${HOME}/golden-gate" &&
+cd "${HOME}/ggxnode" &&
     docker run -d -it --restart=unless-stopped --ulimit nofile=100000:100000 --name "${container_name}" \
         -p "127.0.0.1:$ws_port:9944" \
         -p "127.0.0.1:$http_port:9933" \
         -p "127.0.0.1:$prometheus_port:9615" \
         -p "0.0.0.0:$consensus_port:30333" \
-        -v "$HOME"/golden-gate/custom-spec-files:/tmp \
+        -v "$HOME"/ggxnode/custom-spec-files:/tmp \
         -v "${data_folder_path}":/data-sydney "${DockerImageName}" \
         --base-path=/data-sydney \
         --rpc-cors all \
@@ -84,8 +85,8 @@ cd "${HOME}/golden-gate" &&
         --name "$node_name" \
         --wasm-execution Compiled \
         --chain /tmp/sydney.json \
-        --bootnodes '/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcGcoSJcoyhtTZEWi1n' \
-        --telemetry-url 'wss://test.telemetry.sydney.ggxchain.io/submit 0'
+        --bootnodes "${BOOTNODES}" \
+        --telemetry-url "${TELEMETRY_URL} 0"
 
 echo
 

@@ -3,7 +3,7 @@
 # 'Requirements:'
 # Debian base OS with Docker and Git
 
-# to build image ( this will takes forever )
+# to build image ( this can take forever )
 # 'cd ~ && git clone https://github.com/ggxchain/ggxnode.git'
 # 'cd ggxnode && git fetch --all --tags && git pull'
 # 'docker build -f Dockerfile.sydney -t ggx-node .'
@@ -25,9 +25,6 @@ global_storage_folder="data-sydney"
 # particular node data isolated here. In this example we use '$container_name' variable as final destination.
 data_folder_path="${HOME}/${global_storage_folder}/${container_name}"
 
-# Docker image ( we will build this manualy because no releases available )
-# As we do not have any release tags or versions, we build master 'in hope' it will just works. However, some breaking changes can lead to disaster.
-# In case of disaster - need to bruteforce current working commit relaying on recent accepted pull requests ( something like this )
 DockerImageName="ggx-node"
 
 # To proceed with the execution of the `author_rotateKeys` method, an HTTP endpoint is required. Presently, the

@@ -55,13 +55,16 @@ sudo adduser --disabled-login --disabled-password ggx_user
 sudo su - ggx_user
 ```
 
+* **Set versions** _( Before integrating the parameters, kindly ensure the versions are up-to-date by performing a cross-check. )_
+
 ```sh
 # Set Rust Toolchain and node binary version
-# Please, always check which versions is currently recommended
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2022-12-20'
 GGX_NODE_VERSION='v1.0.0'
 ```
+
+* **Rust toolchain and additional components**
 
 ```sh
 # Install Rust default profile

@@ -74,7 +74,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
 ```
 
 ```sh
-# Uptade
+# Uptade toolchain
 rustup update ${RUST_TOOLCHAIN}
 ```
 
@@ -161,7 +161,7 @@ ln -s ${HOME}/ggxnode/target/release/ggxchain-node ${HOME}/bin/
 
 ```sh
 # Test
-ggxchain-node version
+ggxchain-node --version
 ```
 
 ### Creating Config

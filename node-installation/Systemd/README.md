@@ -84,11 +84,6 @@ rustup target add wasm32-unknown-unknown --toolchain ${RUST_TOOLCHAIN}
 rustup component add rust-src --toolchain ${RUST_TOOLCHAIN}
 ```
 
-```sh
-# Install Dylint
-cargo install cargo-dylint dylint-link
-```
-
 ### Installation:
 
 ```sh
@@ -137,7 +132,7 @@ _Good place to confirm this is GGXChain public [Dicord](https://discord.gg/ggx) 
 
 ```sh
 # Create binary home
-mkdir -p "${HOME}/bin"
+cd ~ && mkdir -p "${HOME}/bin"
 ```
 
 ```sh
@@ -196,7 +191,7 @@ NODE_NAME=<YOUR NODE NAME>
 
 BASE_PATH=/home/ggx_user/data-sydney/<NODE NAME>
 
-BOOT_NODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcGcoSJcoyhtTZEWi1n'
+BOOT_NODES='/dns/sun.sydney.ggxchain.io/tcp/30333/p2p/12D3KooWGmopnFNtQb2bo1irpjPLJUnmt9K4opTSHTMhYYobB8pC'
 TELEMETRY_URL='ws://18.192.225.224:8001/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key

@@ -200,7 +200,7 @@ BOOT_NODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcG
 TELEMETRY_URL='wss://test.telemetry.sydney.ggxchain.io/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
-CUSTOM_CHAIN_SPEC=/home/ggx_user/ggxnode/custom-spec-files/sydney.json
+CUSTOM_CHAIN_SPEC=/home/ggx_user/ggxnode/custom-spec-files/brooklyn.json
 
 WS_PORT=9944
 RPC_PORT=9933

@@ -197,7 +197,7 @@ NODE_NAME=<YOUR NODE NAME>
 BASE_PATH=/home/ggx_user/data-sydney/<NODE NAME>
 
 BOOT_NODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcGcoSJcoyhtTZEWi1n'
-TELEMETRY_URL='wss://test.telemetry.sydney.ggxchain.io/submit 0'
+TELEMETRY_URL='ws://18.192.225.224:8001/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
 CUSTOM_CHAIN_SPEC=sydney

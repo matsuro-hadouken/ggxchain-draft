@@ -38,7 +38,7 @@ sudo apt install git wget curl jq
 
 ```sh
 # Install requirements
-sudo apt install build-essential protobuf-compiler pkg-config libssl-librust-clang-sys-dev -y
+sudo apt install build-essential protobuf-compiler pkg-config libssl-dev librust-clang-sys-dev -y
 ```
 
 * **Create user**

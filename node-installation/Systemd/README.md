@@ -60,7 +60,7 @@ sudo su - ggx_user
 ```sh
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
-RUST_TOOLCHAIN='nightly-2023-08-19'
+RUST_TOOLCHAIN='nightly-2022-12-20'
 GGX_NODE_VERSION='v0.1.0'
 ```
 
@@ -177,7 +177,7 @@ Thing to keep in mind when crafting this configuration file:
 * **Path should be absolute**, double check if all locations _( created above )_ are in place.
 * For _author_rotateKeys_ method we do need `RPC_METHODS` to be `unsafe`, after activation please set to `safe` and **restart**
 * `BASE_PATH` is where database are stored. **Point to the same location we just choose previously**
-* `CUSTOM_CHAIN_SPEC` is json file contain current chain specification
+* `CUSTOM_CHAIN_SPEC` can be predefined preset, as such as `sydney` or json file with chain specification.
 * Variables which can change anytime `BOOT_NODES`, `TELEMETRY_URL` _( always double check )_
 * `NODE_KEY_FILE` you on your own on how to manage your `node.key`. Please follow best practices. Never stop research and improving security.
 * `WS_PORT` `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
@@ -200,7 +200,7 @@ BOOT_NODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcG
 TELEMETRY_URL='wss://test.telemetry.sydney.ggxchain.io/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
-CUSTOM_CHAIN_SPEC=/home/ggx_user/ggxnode/custom-spec-files/brooklyn.json
+CUSTOM_CHAIN_SPEC=sydney
 
 WS_PORT=9944
 RPC_PORT=9933

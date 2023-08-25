@@ -38,11 +38,7 @@ sudo apt install git wget curl jq
 
 ```sh
 # Install requirements
-sudo apt install build-essential
-sudo apt install protobuf-compiler
-sudo apt install pkg-config
-sudo apt install libssl-dev
-sudo apt install librust-clang-sys-dev
+sudo apt install build-essential protobuf-compiler pkg-config libssl-librust-clang-sys-dev -y
 ```
 
 * **Create user**
@@ -65,7 +61,7 @@ sudo su - ggx_user
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2023-08-19'
-GGX_NODE_VERSION='0.1.0'
+GGX_NODE_VERSION='v0.1.0'
 ```
 
 * **Rust toolchain and additional components**
@@ -204,7 +200,7 @@ BOOT_NODES='/ip4/3.69.173.157/tcp/30333/p2p/12D3KooWSriyuFSmvuc188UWqV6Un7YYCTcG
 TELEMETRY_URL='wss://test.telemetry.sydney.ggxchain.io/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
-CUSTOM_CHAIN_SPEC=/home/ggx_user/ggxnode/custom-spec-files/sydney.json
+CUSTOM_CHAIN_SPEC=/home/ggx_user/ggxnode/custom-spec-files/brooklyn.json
 
 WS_PORT=9944
 RPC_PORT=9933

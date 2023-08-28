@@ -4,6 +4,8 @@ If you are viewing this from the console, here is the permanent link for better 
 https://github.com/matsuro-hadouken/golden-gate-stash/tree/main/node-installation/Systemd
 Repository: https://github.com/ggxchain/ggxnode
 
+* _We're currently on the Sydney testnet. To ensure efficient debugging and testing, kindly adhere closely to the provided instructions. Please avoid reusing existing $USER and create new one exclusively. Your cooperation in this matter is greatly appreciated._
+
 ### Introduction:
 
 In this tutorial, we will guide you through the installation of the GGX node using Systemd. However, please note that the security of your infrastructure is not addressed here. It is important to follow best practices for ensuring the security of your system. [Debian Security](https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html).
@@ -99,8 +101,8 @@ git checkout ${GGX_NODE_VERSION}
 ```
 
 ```sh
-# Build
-cargo build --release --features="fast-runtime"
+# Build ( Sydney Testnet )
+cargo build --release --package ggxchain-node --features="sydney"
 ```
 
 If the build fails to succeed for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.

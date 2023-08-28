@@ -102,7 +102,7 @@ git checkout ${GGX_NODE_VERSION}
 
 ```sh
 # Build ( Sydney Testnet )
-cargo build --release --package ggxchain-node --features="sydney"
+rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --features="sydney"
 ```
 
 If the build fails to succeed for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.

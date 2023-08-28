@@ -63,7 +63,7 @@ sudo su - ggx_user
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2022-12-20'
-GGX_NODE_VERSION='v0.1.0'
+GGX_NODE_VERSION='v0.1.1'
 ```
 
 * **Rust toolchain and additional components**

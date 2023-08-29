@@ -1,6 +1,7 @@
 ### Deploying GGXChain Node In Docker Container
 
-_It is **NOT** Recommended to run GGXChain in docker for production, method is **for development and testing only** !_. Please use [Systemd Setup](https://github.com/matsuro-hadouken/golden-gate-stash/tree/main/node-installation/Systemd) instead.
+_It is **NOT** Recommended to run GGXChain in docker for production, method is **for development and testing only** !_
+For better performance please use [Systemd Setup](https://github.com/matsuro-hadouken/golden-gate-stash/tree/main/node-installation/Systemd) instead.
 
 **Requirements:**
 * Debian base OS with Docker && Git

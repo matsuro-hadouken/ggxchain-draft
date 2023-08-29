@@ -76,7 +76,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
 ```
 
 ```sh
-# Uptade toolchain
+# Update toolchain and set default
 rustup update  ${RUST_TOOLCHAIN}
 rustup default ${RUST_TOOLCHAIN}
 ```

@@ -1,12 +1,19 @@
 {
   "__inputs": [
     {
-      "name": "DS_PROMETHEUS",
+      "name": "${DS}",
       "label": "prometheus",
       "description": "",
       "type": "datasource",
       "pluginId": "prometheus",
       "pluginName": "Prometheus"
+    },
+    {
+      "name": "DS_EXPRESSION",
+      "label": "Expression",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "__expr__"
     }
   ],
   "__elements": {},
@@ -84,7 +91,7 @@
   "liveNow": true,
   "panels": [
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -92,496 +99,497 @@
         "y": 0
       },
       "id": 77,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS}"
+          },
+          "description": "Provide basic overview on blocks flow for ALL connected instances.\n\nIf required can add specific job as: substrate_block_height{job=\"my_job\"}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "points",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 9,
+            "x": 0,
+            "y": 1
+          },
+          "id": 81,
+          "options": {
+            "legend": {
+              "calcs": [
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS}"
+              },
+              "editorMode": "code",
+              "expr": "ggxnode_substrate_block_height",
+              "legendFormat": "{{ alias }} - {{ status }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Chain Flow In Blocks",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS}"
+          },
+          "description": "Our instance mission. Display if node is validator or just passive observe.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "from": 0,
+                    "result": {
+                      "color": "#636363",
+                      "index": 0,
+                      "text": "[ OBSERVER ]"
+                    },
+                    "to": 0.3
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "from": 0.3,
+                    "result": {
+                      "color": "dark-green",
+                      "index": 1,
+                      "text": "[ VALIDATOR ]"
+                    },
+                    "to": 1
+                  },
+                  "type": "range"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "dark-red",
+                    "value": null
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 0.5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 5,
+            "x": 9,
+            "y": 1
+          },
+          "id": 91,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value_and_name"
+          },
+          "pluginVersion": "10.0.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "(rate(ggxnode_substrate_finality_grandpa_precommits_total[$__rate_interval]) + rate(ggxnode_substrate_finality_grandpa_prevotes_total[$__rate_interval])) / 2",
+              "format": "time_series",
+              "hide": false,
+              "instant": true,
+              "legendFormat": "[ {{ instance }} ] ==>",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Nodes missions",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS}"
+          },
+          "description": "Overview on grandpa roudns progression for ALL connected instances.\n\nIf required can add specific job as: substrate_finality_grandpa_round{job=\"my_job\"}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 10,
+            "x": 14,
+            "y": 1
+          },
+          "id": 79,
+          "options": {
+            "legend": {
+              "calcs": [
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS}"
+              },
+              "editorMode": "code",
+              "expr": "ggxnode_substrate_finality_grandpa_round",
+              "legendFormat": "{{ alias }} - {{ job }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Grandpa Finality Round",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS}"
+          },
+          "description": "Chain flow stability overview, can provide some ideas on general lag in consensus.\n\nIf required can add specific job as: \nincrease(substrate_block_height{job=\"my_job\"}[5m])",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "dashed"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#2c29557d",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 11
+          },
+          "id": 74,
+          "options": {
+            "legend": {
+              "calcs": [
+                "last",
+                "min",
+                "max",
+                "mean",
+                "range"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "9.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "increase(ggxnode_substrate_block_height[200s]) / 100",
+              "instant": false,
+              "legendFormat": "{{ alias }} - {{ status }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Block Flow [ all ]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS}"
+          },
+          "description": "Grandpa rounds progression overview.\n\nAdd job if required as:\nincrease(substrate_finality_grandpa_round{job=\"my_job\"}[1m])",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "dashed"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#6c6c6c",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 19
+          },
+          "id": 75,
+          "options": {
+            "legend": {
+              "calcs": [
+                "last",
+                "min",
+                "max",
+                "mean",
+                "range"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "9.2.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "increase(ggxnode_substrate_finality_grandpa_round[150s]) / 100",
+              "instant": false,
+              "legendFormat": "finality_grandpa_round - {{ alias }}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Grandpa Round Flow Control [ 1m ]",
+          "type": "timeseries"
+        }
+      ],
       "title": "♻️ [ ALL CONNECTED INSTANCES OVERVIEW ]",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROM-MAIN}"
-      },
-      "description": "Provide basic overview on blocks flow for ALL connected instances.\n\nIf required can add specific job as: substrate_block_height{job=\"my_job\"}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "points",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 2,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 9,
-        "x": 0,
-        "y": 1
-      },
-      "id": 81,
-      "options": {
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
-          },
-          "editorMode": "code",
-          "expr": "ggxnode_substrate_block_height",
-          "legendFormat": "{{ alias }} - {{ status }}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Chain Flow In Blocks",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROM-MAIN}"
-      },
-      "description": "Our instance mission. Display if node is validator or just passive observe.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "from": 0,
-                "result": {
-                  "color": "#636363",
-                  "index": 0,
-                  "text": "[ OBSERVER ]"
-                },
-                "to": 0.3
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 0.3,
-                "result": {
-                  "color": "dark-green",
-                  "index": 1,
-                  "text": "[ VALIDATOR ]"
-                },
-                "to": 1
-              },
-              "type": "range"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-red",
-                "value": null
-              },
-              {
-                "color": "dark-green",
-                "value": 0.5
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 5,
-        "x": 9,
-        "y": 1
-      },
-      "id": 91,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(rate(ggxnode_substrate_finality_grandpa_precommits_total[$__rate_interval]) + rate(ggxnode_substrate_finality_grandpa_prevotes_total[$__rate_interval])) / 2",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "[ {{ instance }} ] ==>",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Nodes missions",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROM-MAIN}"
-      },
-      "description": "Overview on grandpa roudns progression for ALL connected instances.\n\nIf required can add specific job as: substrate_finality_grandpa_round{job=\"my_job\"}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 10,
-        "x": 14,
-        "y": 1
-      },
-      "id": 79,
-      "options": {
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
-          },
-          "editorMode": "code",
-          "expr": "ggxnode_substrate_finality_grandpa_round",
-          "legendFormat": "{{ alias }} - {{ job }}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Grandpa Finality Round",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROM-MAIN}"
-      },
-      "description": "Chain flow stability overview, can provide some ideas on general lag in consensus.\n\nIf required can add specific job as: \nincrease(substrate_block_height{job=\"my_job\"}[5m])",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#2c29557d",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 11
-      },
-      "id": 74,
-      "options": {
-        "legend": {
-          "calcs": [
-            "last",
-            "min",
-            "max",
-            "mean",
-            "range"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "increase(ggxnode_substrate_block_height[200s]) / 100",
-          "instant": false,
-          "legendFormat": "{{ alias }} - {{ status }}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Block Flow [ all ]",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROM-MAIN}"
-      },
-      "description": "Grandpa rounds progression overview.\n\nAdd job if required as:\nincrease(substrate_finality_grandpa_round{job=\"my_job\"}[1m])",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#6c6c6c",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 19
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [
-            "last",
-            "min",
-            "max",
-            "mean",
-            "range"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "increase(ggxnode_substrate_finality_grandpa_round[150s]) / 100",
-          "instant": false,
-          "legendFormat": "finality_grandpa_round - {{ alias }}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Grandpa Round Flow Control [ 1m ]",
-      "type": "timeseries"
     },
     {
       "collapsed": true,
@@ -589,14 +597,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 1
       },
       "id": 73,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -645,7 +653,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -663,7 +671,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -711,7 +719,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -728,7 +736,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Our instance mission. Display if node is validator or just passive observe.",
           "fieldConfig": {
@@ -804,7 +812,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -818,7 +826,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_finality_grandpa_prevotes_total{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -845,7 +853,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -892,7 +900,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -922,7 +930,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -970,7 +978,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -987,7 +995,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Calculated [1m] / 30 = ~1",
           "fieldConfig": {
@@ -1064,7 +1072,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "increase(ggxnode_substrate_block_height{instance=\"$instance\",job=\"$job\"}[1m]) / 30",
@@ -1086,14 +1094,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 2
       },
       "id": 63,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1135,8 +1143,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -1171,7 +1178,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_block_verification_time_sum{instance=\"$instance\",job=\"$job\"}[$__rate_interval]) / rate(ggxnode_substrate_block_verification_time_count{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -1186,7 +1193,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1228,8 +1235,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -1268,7 +1274,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_block_verification_and_import_time_sum{instance=\"$instance\",job=\"$job\"}[$__rate_interval]) / rate(ggxnode_substrate_block_verification_and_import_time_count{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -1283,7 +1289,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1326,8 +1332,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1364,7 +1369,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1381,7 +1386,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1424,8 +1429,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -1466,7 +1470,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1483,7 +1487,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1526,8 +1530,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1595,7 +1598,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1608,7 +1611,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_finality_grandpa_prevotes_total{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -1625,7 +1628,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1668,8 +1671,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1703,7 +1705,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1720,7 +1722,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1763,8 +1765,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1799,7 +1800,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1816,7 +1817,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1859,8 +1860,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1897,7 +1897,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1914,7 +1914,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -1957,8 +1957,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -1995,7 +1994,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2012,7 +2011,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2055,8 +2054,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2093,7 +2091,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2110,7 +2108,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2153,8 +2151,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2191,7 +2188,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2208,7 +2205,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2251,8 +2248,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2289,7 +2285,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2306,7 +2302,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2349,8 +2345,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2387,7 +2382,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2405,7 +2400,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Number of seconds between the UNIX epoch and the moment the process started.",
           "fieldConfig": {
@@ -2419,8 +2414,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2454,7 +2448,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2472,7 +2466,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2515,8 +2509,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2553,7 +2546,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2578,14 +2571,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 3
       },
       "id": 67,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2600,8 +2593,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "dark-green",
-                    "value": null
+                    "color": "dark-green"
                   },
                   {
                     "color": "blue",
@@ -2648,7 +2640,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2665,7 +2657,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2717,7 +2709,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2734,7 +2726,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2777,8 +2769,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2815,7 +2806,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2833,7 +2824,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2876,8 +2867,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -2914,7 +2904,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -2932,7 +2922,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2976,8 +2966,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3014,7 +3003,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3031,7 +3020,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3075,8 +3064,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3113,7 +3101,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3131,7 +3119,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3175,8 +3163,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3210,7 +3197,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3223,7 +3210,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3241,7 +3228,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3285,8 +3272,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3354,7 +3340,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3367,7 +3353,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3392,14 +3378,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 4
       },
       "id": 69,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3443,8 +3429,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3481,7 +3466,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3499,7 +3484,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3543,8 +3528,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3581,7 +3565,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3599,7 +3583,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3643,8 +3627,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3680,7 +3663,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3698,7 +3681,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3742,8 +3725,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3779,7 +3761,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3793,7 +3775,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3811,7 +3793,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3855,8 +3837,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3890,7 +3871,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -3908,7 +3889,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -3952,8 +3933,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -3989,7 +3969,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4007,7 +3987,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4051,8 +4031,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4086,7 +4065,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4104,7 +4083,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4148,8 +4127,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4183,7 +4161,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4201,7 +4179,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4245,8 +4223,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4280,7 +4257,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4298,7 +4275,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4343,8 +4320,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4381,7 +4357,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4399,7 +4375,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4443,8 +4419,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4479,7 +4454,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4493,7 +4468,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4511,7 +4486,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4555,8 +4530,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4591,7 +4565,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4609,7 +4583,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4653,8 +4627,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4688,7 +4661,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4706,7 +4679,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4750,8 +4723,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4785,7 +4757,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4803,7 +4775,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4847,8 +4819,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4884,7 +4855,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -4902,7 +4873,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -4946,8 +4917,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -4983,7 +4953,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5001,7 +4971,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5045,8 +5015,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5080,7 +5049,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5098,7 +5067,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5143,8 +5112,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5178,7 +5146,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5196,7 +5164,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5241,8 +5209,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5278,7 +5245,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5296,7 +5263,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5340,8 +5307,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5376,7 +5342,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5394,7 +5360,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5439,8 +5405,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5476,7 +5441,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5494,7 +5459,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5538,8 +5503,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5606,7 +5570,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5624,7 +5588,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Histogram processed as:\n( Sum / Count [$__rate_interval] )",
           "fieldConfig": {
@@ -5669,8 +5633,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5704,7 +5667,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5729,14 +5692,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 5
       },
       "id": 71,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -5778,8 +5741,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -5818,7 +5780,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_sub_txpool_block_transactions_pruned{instance=\"$instance\",job=\"$job\"}[5m])",
@@ -5833,7 +5795,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5877,8 +5839,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -5912,7 +5873,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -5930,7 +5891,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -5974,8 +5935,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -6009,7 +5969,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6027,7 +5987,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -6072,8 +6032,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -6107,7 +6066,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6125,7 +6084,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -6170,8 +6129,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "dark-green",
-                    "value": null
+                    "color": "dark-green"
                   },
                   {
                     "color": "dark-red",
@@ -6209,7 +6167,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6227,7 +6185,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -6272,8 +6230,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -6340,7 +6297,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6354,7 +6311,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(substrate_sub_txpool_submitted_transactions{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -6377,14 +6334,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 6
       },
       "id": 65,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -6428,8 +6385,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -6466,7 +6422,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6484,7 +6440,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "",
           "fieldConfig": {
@@ -6528,8 +6484,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -6594,7 +6549,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6619,14 +6574,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 7
       },
       "id": 85,
       "panels": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Given the inherent dynamism of network behaviors, it is reasonable to anticipate fluctuating values over time. Consequently, it is advisable to align temporal parameters with the approximate intervals of block processing. The calibration of alerting thresholds demands a deliberate manual intervention to achieve optimal sensitivity. The visual representation provided here serves as a generic illustrative instance, showcasing the potential instantiation of alerts.\n\nIn the event of specificity being requisite, it is plausible to incorporate a distinct job, exemplified as: substrate_block_height{job=\"my_job\"}",
           "fieldConfig": {
@@ -6672,8 +6627,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -6688,7 +6642,7 @@
             "h": 8,
             "w": 7,
             "x": 0,
-            "y": 130
+            "y": 403
           },
           "id": 82,
           "options": {
@@ -6709,7 +6663,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "delta(ggxnode_substrate_block_height[60s]) / 30 ",
@@ -6724,7 +6678,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "Given the inherent dynamism of network behaviors, it is reasonable to anticipate fluctuating values over time. Consequently, it is advisable to align temporal parameters with the approximate intervals of grandpa rounds length. The calibration of alerting thresholds demands a deliberate manual intervention to achieve optimal sensitivity. The visual representation provided here serves as a generic illustrative instance, showcasing the potential instantiation of alerts.\n\nIn the event of specificity being requisite, it is plausible to incorporate a distinct job, exemplified as: substrate_finality_grandpa_round{job=\"my_job\"}",
           "fieldConfig": {
@@ -6767,8 +6721,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "#6c6c6c",
-                    "value": null
+                    "color": "#6c6c6c"
                   },
                   {
                     "color": "dark-red",
@@ -6784,7 +6737,7 @@
             "h": 8,
             "w": 7,
             "x": 7,
-            "y": 130
+            "y": 403
           },
           "id": 83,
           "options": {
@@ -6806,7 +6759,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6823,7 +6776,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROM-MAIN}"
+            "uid": "${DS}"
           },
           "description": "If value fall below dashed line, we are not validator anymore. This should be considered as maximum severity level as much as fatal.\n\nAlerts doesn't support variables, target required instance manualy. Example: instance=\"my_ec2_instance\",job=\"my_validator\"",
           "fieldConfig": {
@@ -6866,8 +6819,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "dark-red",
-                    "value": null
+                    "color": "dark-red"
                   },
                   {
                     "color": "transparent",
@@ -6883,7 +6835,7 @@
             "h": 8,
             "w": 10,
             "x": 14,
-            "y": 130
+            "y": 403
           },
           "id": 90,
           "options": {
@@ -6908,7 +6860,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -6921,7 +6873,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROM-MAIN}"
+                "uid": "${DS}"
               },
               "editorMode": "code",
               "expr": "rate(ggxnode_substrate_finality_grandpa_prevotes_total{instance=\"$instance\",job=\"$job\"}[$__rate_interval])",
@@ -6964,7 +6916,7 @@
         "query": "prometheus",
         "queryValue": "",
         "refresh": 1,
-        "regex": "/prom*/",
+        "regex": "/prom*/im",
         "skipUrlSync": false,
         "type": "datasource"
       },
@@ -6972,7 +6924,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROM-MAIN}"
+          "uid": "${DS}"
         },
         "definition": "label_values(job)",
         "hide": 0,
@@ -6995,7 +6947,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROM-MAIN}"
+          "uid": "${DS}"
         },
         "definition": "label_values(instance)",
         "hide": 0,
@@ -7023,7 +6975,7 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "GGX Chain Grafana Dashboard",
-  "uid": "GGXChain777",
-  "version": 205,
+  "uid": "GGXChain738",
+  "version": 209,
   "weekStart": ""
 }

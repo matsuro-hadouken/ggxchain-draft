@@ -34,6 +34,10 @@ Example of Prometheus configuration:
 
 **WARNING:** Always encrypt Prometheus traffic !
 
+#### Alerts
+
+* Alerts present as examples in the bottom of the dashboard. Alerts doesn't supper variables, each target need to be configured manualy `job="exact_target"`
+
 ## What to expect ?
 
 ![Screenshot](https://raw.githubusercontent.com/matsuro-hadouken/ggxchain-draft/main/grafana_custom_dashboard/full-dashboard-image.png?raw=true)

@@ -1,30 +1,39 @@
-# Base full range Grafana board for Substrate node
+# GGX Chain Grafana Dashboard
 
-_Following recent research agenda, I got nothing digging for decent full-range debugging Grafana dashboard on Substrate, thought it will be worth to make one. Currently a little messy, will add more flexability on spare time to support multiple instances._
+This dashboard has a complete implementation of node metrics. It can be adopted for Substrate-based systems with very little modification, such as changing the metrics prefix.
 
-* Grafana version: 9.2.0
+* _Grafana version: v10.0.3_
 
-## Installation
-
-Download dashboard using wget or any preferable method.
+#### How to use
 
 ```sh
-wget https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/grafana_custom_dashboard/substrate-custom-debug.json
+wget https://raw.githubusercontent.com/matsuro-hadouken/ggxchain-draft/main/grafana_custom_dashboard/ggxchain-grafana-dashboard.json
 ```
 
-In Grafana:
+* In Grafana: `Dashboards => New => Import`
 
-`Dashboards => New => Import`
+* Upload: `ggxchain-grafana-dashboard.json`
 
-Select: `substrate-custom-debug.json`
+* Adjust datasource, instance, job if required
 
-Adjust variables if required
+#### Prometheus
+
+* **Datasource** regex is set to `/prom*/im`, this will be valid for every string contain _prom_ or _Prom_ anywhere in line. Adjust datasource variable if regex doesn't apply.
+* **Job** and **Instance** will be filtered as `/.*ggx_node.*/`, please ensure correct naming or adjust filters manualy.
+
+Example of Prometheus configuration:
+
+```yaml
+  - job_name: 'an_ggx_node_job_name'
+    static_configs:
+    - targets: ['100.8.97.256:999']
+      labels:
+        alias: 'GGX Sydney Validator SG'
+        instance: equinix_ggx_node_sg_kubernetes
+```
+
+**WARNING:** Always encrypt Prometheus traffic !
 
 ## What to expect ?
 
-![Screenshot](https://raw.githubusercontent.com/matsuro-hadouken/substrate-tools/main/grafana_custom_dashboard/substrate-custom-debug.png?raw=true)
-
-### To do list
-
-* ~~_Add multiple instances selector for Prometheus job_~~
-* _Clean up_
+![Screenshot](https://raw.githubusercontent.com/matsuro-hadouken/ggxchain-draft/main/grafana_custom_dashboard/full-dashboard-image.png?raw=true)

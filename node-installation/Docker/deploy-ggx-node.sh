@@ -22,7 +22,7 @@ MY_NODE_NAME="my_node_name_here" # Try to use only letters and numbers ( undersc
                                 
 # Double check up to date values of '$BOOT_NODE' && '$TELEMETRY' !!!
 BOOT_NODE="/dns/sun.sydney.ggxchain.io/tcp/30333/p2p/12D3KooWGmopnFNtQb2bo1irpjPLJUnmt9K4opTSHTMhYYobB8pC" # Boot from here
-TELEMETRY='ws://18.192.225.224:8001/submit 0' # Telemetry endpoint
+TELEMETRY='wss://telemetry.sydney.ggxchain.io/submit 0' # Telemetry endpoint
 
 # Consensus port in case of multiple containers will stay on '400x' where 'x' is provided integer. Example: 4001, 4002, 4003 and so on ...
 

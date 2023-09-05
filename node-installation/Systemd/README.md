@@ -319,6 +319,7 @@ sudo systemctl start ggx-node.service && sudo journalctl -fu ggx-node.service -o
 ```
 
 * _Logs should populate console screen by now, follow `monitoring` and `debugging` section of the documentation from here._
+* _Node should be visible at ==> [Telemetry Web Page](https://telemetry.sydney.ggxchain.io) <==_
 
 **_A little summary of what we just deployed:_**
 
@@ -340,13 +341,15 @@ curl -H "Content-Type: application/json" \
      -d '{"id":1, "jsonrpc":"2.0", "method": "author_rotateKeys", "params":[]}' \
       http://localhost:$RPC_PORT
 ```
-* After successful call, set `$RPC_METHODS` to `safe` and restart _`ggx-node.service`_
+* _After successful call, set `$RPC_METHODS` to `safe` and restart `ggx-node.service`_
+* Perform required transactions by using [GGXChain Explorer](https://sydney.art3mis.cloud) interface
+* _Watch [GGXChain Explorer](https://sydney.art3mis.cloud) as your node will about to start validating_
 
 #### Node Upgrade
 
 GGXChain offers the convenience of seamless upgrades without any downtime for validators. While detailed coverage of this feature is not within the scope of this particular discussion, you can find comprehensive information on this topic in our documentation portal.
 
-Traditional binary upgrades require a few straightforward steps. However, before proceeding, it is essential to determine the required version for the procedure. In case the upgrade is scheduled for a specific time, it is recommended to double-check the exact timing. Once all the necessary information is confirmed, follow the simple sequence of steps outlined below:
+Traditional binary upgrades require a few straightforward steps. However, before proceeding, it is essential to determine the required software version for the procedure. In case the upgrade is scheduled for a specific time, it is recommended to double-check the exact timing. Once all the necessary information is confirmed, follow the simple sequence of steps outlined below:
 
 ```sh
 # get user shell ( stay here untill restart is required )
@@ -355,6 +358,13 @@ sudo su - ggx_user
 ```sh
 # Set version we want to apply
 GGX_NODE_VERSION='<version>'
+```
+
+* It is mandatory to check the current Rust toolchain version
+* If the toolchain version is different, you absolutely need to upgrade it before continuing to the next step !
+
+```sh
+RUST_TOOLCHAIN='nightly-2022-12-20'
 ```
 ```sh
 # pull recent changes
@@ -366,7 +376,7 @@ git checkout ${GGX_NODE_VERSION}
 ```
 ```sh
 # Build
-cargo build --release --features="fast-runtime"
+rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --features="sydney"
 ```
 
 ```sh
@@ -379,10 +389,6 @@ After restart node will switch on new version.
 ```sh
 # Exit from current non-sudo user shell
 exit
-```
-```sh
-# Reload configuration
-sudo systemctl daemon-reload
 ```
 ```sh
 sudo systemctl restart ggx-node.service; sudo journalctl -fu ggx-node.service -o cat

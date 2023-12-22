@@ -62,8 +62,8 @@ sudo su - ggx_user
 ```sh
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
-RUST_TOOLCHAIN='nightly-2022-12-20'
-GGX_NODE_VERSION='v0.1.1'
+RUST_TOOLCHAIN='nightly-2023-08-19'
+GGX_NODE_VERSION='v0.1.3'
 ```
 
 * **Rust toolchain and additional components**
@@ -102,10 +102,10 @@ git checkout ${GGX_NODE_VERSION}
 
 ```sh
 # Build ( Sydney Testnet )
-rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --features="sydney"
+rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --no-default-features --features="sydney"
 ```
 
-If the build fails to succeed for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.
+If the build fails for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.
 
 ### Server configuration
 
@@ -200,7 +200,6 @@ TELEMETRY_URL='wss://telemetry.sydney.ggxchain.io/submit 0'
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
 CUSTOM_CHAIN_SPEC=sydney
 
-WS_PORT=9944
 RPC_PORT=9933
 PROMETHEUS_PORT=9615
 CONSENSUS_P2P=30333
@@ -220,28 +219,70 @@ Save configuration and exit _( this file can be easily updated later though our 
 chmod 0600 ${HOME}/bin/node.conf
 ```
 
-### Create Node Key
+### Keys Generation
 
-_Private keys are highly sensitive files and should be handled with utmost care. It is essential to ensure maximum protection and prevent any potential exposure. It is strongly recommended to follow best practices for keys management._ _Make sure to keep your private keys private and avoid sharing them publicly. Implement measures to safeguard the confidentiality and integrity of these keys. It is crucial to be aware of GGX Chain node key management techniques to ensure secure handling._ _Additionally, it is imperative to regularly back up your private key file and store it encrypted and securely. Losing this file can result in significant damage, so exercise caution and take appropriate measures to prevent any accidental loss._
+_Private keys are highly sensitive files and should be handled with utmost care. It is essential to ensure maximum protection and prevent any potential exposure. It is strongly recommended to follow best practices for keys management._ _Make sure to keep your private keys private and avoid sharing them publicly. Implement measures to safeguard the confidentiality and integrity of these keys. It is crucial to be aware of GGX Chain node key management techniques to ensure secure handling._
 
 ```sh
-# generate key
+# generate node key
 ggxchain-node key generate-node-key --file "${HOME}/.node-key/node.key"
+```
+
+```sh
+# we will need atitional key to secure etherium ligh client
+ggxchain-node key generate -w 24 --output-type json --scheme ecdsa >$HOME/.node-key/ecdsa.json
 ```
 
 ```sh
 # set permissions
 chmod 0600 "${HOME}/.node-key/node.key"
+chmod 0600 "${HOME}/.node-key/ecdsa.json"
+```
+```sh
+# Inspect ecdsa key, we will need passphrase to continue
+cat ${HOME}/.node-key/ecdsa.json | grep secretPhrase
 ```
 
 ```sh
-# check public ID
+# injected ecdsa key in to local keystore
+# Require data path and passphrase from previous command
+ggxchain-node key insert --key-type beef
+                        --scheme ecdsa \
+                        --suri "<passphrase from ecdsa.json we just generated>" \
+                        --chain=sydney \
+                        -d "${HOME}/data-sydney/<NODE NAME>"
+```
+
+Now we will confirm our procedure succeed just in case. Press ENTER twice to skeep custom URL request.
+
+```sh
+# check keys in keystore
+ggxchain-node key inspect --keystore-path ${HOME}/data-sydney/<NODE NAME>/chains/GGX/keystore/
+```
+
+```sh
+# check previously generated ecdsa key
+ggxchain-node key inspect --keystore-path ~/.node-key
+```
+
+Both keys should be identical, this is mandatory. Additionally we check node public ID.
+
+```sh
+# check node public ID
 ggxchain-node key inspect-node-key --file "${HOME}/.node-key/node.key"
 ```
 
-_Last command will output public ID_
+* Backup key files, encrypt, save securely !
 
-* _Backup this file, encrypt, save securely !_
+_By design, GGX Chain doesn't require `node.key` backup for security reason. But we are on testnet now, remember this._
+_The last thing to do regarding keys generation, is to understand what we just done, by inspecting folder content so called "keystore"._
+
+```sh
+# check files content here
+cd ${HOME}/data-sydney/<NODE NAME>/chains/GGX/keystore/
+```
+
+_We also don't need `${HOME}/.node-key/ecdsa.json` anymore, burn with fire._
 
 ### Create Systemd Unit Config
 
@@ -277,7 +318,7 @@ EnvironmentFile=/home/ggx_user/bin/node.conf
 ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} \
         --base-path=${BASE_PATH} \
         --database rocksdb \
-        --sync warp \
+        --sync fast \
         --no-private-ip \
         --no-mdns \
         --state-pruning ${STATE_PRUNING} \
@@ -289,7 +330,6 @@ ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} \
         --rpc-methods ${RPC_METHODS} \
         --rpc-cors "localhost" \
         --rpc-port ${RPC_PORT} \
-        --ws-port ${WS_PORT} \
         --prometheus-port ${PROMETHEUS_PORT} \
         --name ${NODE_NAME} \
         --chain ${CUSTOM_CHAIN_SPEC} \
@@ -309,7 +349,7 @@ WantedBy=multi-user.target
 Save and exit
 ```sh
 # Reload configuration
-sudo systemctl daemon-reload
+sudo systemctl daemon-reload && sudo systemctl enable ggx-node.service
 ```
 
 ### Start The Node !
@@ -323,19 +363,30 @@ sudo systemctl start ggx-node.service && sudo journalctl -fu ggx-node.service -o
 
 **_A little summary of what we just deployed:_**
 
-* `WS Socket`     _bond to host on port `$WS_PORT` in a safe mod_
-* `HTTP RPC`      _bond to host and exposed on port `$RPC_PORT`, set to unsafe_
+* `RPC`           _bond to host and exposed on port `$RPC_PORT`, set to `unsafe`_
 * `Prometheus`    _bond to host and exposed on port `$PROMETHEUS_PORT`_
 * `Consensus P2P` _bond to all interfaces and available on port `$CONSENSUS_P2P`_
 
 **Validator**
 
-* _This node is passive observer, validator require additional flag to be passed here `/etc/systemd/system/ggx-node.service`_
+* _Currently, this node is passive observer, validator require additional flag to be passed here `/etc/systemd/system/ggx-node.service`_
 
 ```sh
         --validator
 ```
+
+**Example:**
+```sh
+ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} --validator \
+...
+```
+```sh
+# Ensure unit configuration is reload
+sudo systemctl daemon-reload
+```
+
 * To perform the `author_rotateKeys`, execute:
+
 ```sh
 curl -H "Content-Type: application/json" \
      -d '{"id":1, "jsonrpc":"2.0", "method": "author_rotateKeys", "params":[]}' \
@@ -345,53 +396,8 @@ curl -H "Content-Type: application/json" \
 * Perform required transactions by using [GGXChain Explorer](https://sydney.art3mis.cloud) interface
 * _Watch [GGXChain Explorer](https://sydney.art3mis.cloud) as your node will about to start validating_
 
-#### Node Upgrade
+#### Protocol Upgrade
 
 GGXChain offers the convenience of seamless upgrades without any downtime for validators. While detailed coverage of this feature is not within the scope of this particular discussion, you can find comprehensive information on this topic in our documentation portal.
-
-Traditional binary upgrades require a few straightforward steps. However, before proceeding, it is essential to determine the required software version for the procedure. In case the upgrade is scheduled for a specific time, it is recommended to double-check the exact timing. Once all the necessary information is confirmed, follow the simple sequence of steps outlined below:
-
-```sh
-# get user shell ( stay here untill restart is required )
-sudo su - ggx_user
-```
-```sh
-# Set version we want to apply
-GGX_NODE_VERSION='<version>'
-```
-
-* It is mandatory to check the current Rust toolchain version
-* If the toolchain version is different, you absolutely need to upgrade it before continuing to the next step !
-
-```sh
-RUST_TOOLCHAIN='nightly-2022-12-20'
-```
-```sh
-# pull recent changes
-cd ${HOME}/ggxnode && git fetch --all --tags && git pull
-```
-```sh
-# Checkout
-git checkout ${GGX_NODE_VERSION}
-```
-```sh
-# Build
-rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --features="sydney"
-```
-
-```sh
-# Confirm builded version matching our expectation
-ggxchain-node version
-```
-
-After restart node will switch on new version.
-
-```sh
-# Exit from current non-sudo user shell
-exit
-```
-```sh
-sudo systemctl restart ggx-node.service; sudo journalctl -fu ggx-node.service -o cat
-```
 
 **Have fun ! And if you think we can improve this documentation feel free to collaborate, [talk to us](https://discord.gg/ggx).**

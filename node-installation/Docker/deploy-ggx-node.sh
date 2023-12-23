@@ -142,34 +142,33 @@ function deploy_container() {
 
     echo -e " ${GREEN}Deploying new container:${NC} ${CYAN}${node_name}${NC}" && echo
 
-    cd "${HOME}/ggxnode" &&
-        docker run -d -it --restart=unless-stopped --ulimit nofile=100000:100000 --name "${node_name}" \
-            -p "127.0.0.1:$ws_port:9944" \
-            -p "127.0.0.1:$http_port:9933" \
-            -p "0.0.0.0:$prometheus_port:9615" \
-            -p "$consensus_port:30333" \
-            -v "${data_folder_path}":/data-sydney ${docker_image} \
-            --validator \
-            --base-path=/data-sydney \
-            --rpc-cors all \
-            --database rocksdb \
-            --sync warp \
-            --no-private-ip \
-            --no-mdns \
-            --state-pruning 256 \
-            --blocks-pruning 256 \
-            --node-key-type ed25519 \
-            --node-key-file "${data_folder_path}"/node.key \
-            --log info \
-            --rpc-methods unsafe \
-            --unsafe-rpc-external \
-            --unsafe-ws-external \
-            --prometheus-external \
-            --name "$node_name" \
-            --wasm-execution Compiled \
-            --chain sydney \
-            --bootnodes "${BOOT_NODE}" \
-            --telemetry-url "${TELEMETRY}"
+    docker run -d -it --restart=unless-stopped --ulimit nofile=100000:100000 --name "${node_name}" \
+        -p "127.0.0.1:$http_port:9933" \
+        -p "0.0.0.0:$prometheus_port:9615" \
+        -p "$consensus_port:30333" \
+        -v "${data_folder_path}":/chain-data \
+        -v "${data_folder_path}":/data-sydney ${docker_image} \
+        --validator \
+        --base-path=/data-sydney \
+        --rpc-cors all \
+        --database rocksdb \
+        --sync fast \
+        --no-private-ip \
+        --no-mdns \
+        --state-pruning 256 \
+        --blocks-pruning 256 \
+        --node-key-type ed25519 \
+        --node-key-file "${data_folder_path}"/node.key \
+        --log info \
+        --rpc-methods unsafe \
+        --unsafe-rpc-external \
+        --unsafe-ws-external \
+        --prometheus-external \
+        --name "$node_name" \
+        --wasm-execution Compiled \
+        --chain sydney \
+        --bootnodes "${BOOT_NODE}" \
+        --telemetry-url "${TELEMETRY}"
 
     echo
 

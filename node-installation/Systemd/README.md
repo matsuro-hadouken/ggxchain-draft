@@ -63,7 +63,7 @@ sudo su - ggx_user
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2023-08-19'
-GGX_NODE_VERSION='v0.1.3'
+GGX_NODE_VERSION='v0.1.4'
 ```
 
 * **Rust toolchain and additional components**
@@ -175,10 +175,20 @@ Thing to keep in mind when crafting this configuration file:
 * **Path should be absolute**, double check if all locations _( created above )_ are in place.
 * For _author_rotateKeys_ method we do need `RPC_METHODS` to be `unsafe`, after activation please set to `safe` and **restart**
 * `BASE_PATH` is where database are stored. **Point to the same location we just choose previously**
-* `CUSTOM_CHAIN_SPEC` can be predefined preset, as such as `sydney` or json file with chain specification.
+* `CUSTOM_CHAIN_SPEC` absolute path to chain json file. _( double check which one is currently active on the network )_
 * Variables which can change anytime `BOOT_NODES`, `TELEMETRY_URL` _( always double check )_
 * `NODE_KEY_FILE` you on your own on how to manage your `node.key`. Please follow best practices. Never stop research and improving security.
 * `WS_PORT` `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
+
+```sh
+# Pull custom chainspec file
+cd ~ && wget https://raw.githubusercontent.com/ggxchain/ggxnode/main/custom-spec-files/sydney-testnet.raw.json
+```
+
+```sh
+# move to prefered location
+cd ~ && mv sydney-testnet.raw.json /home/ggx_user/data-sydney/<NODE NAME>/
+```
 
 ```sh
 # Create unit environment file
@@ -198,7 +208,7 @@ BOOT_NODES='/dns/sun.sydney.ggxchain.io/tcp/30333/p2p/12D3KooWGmopnFNtQb2bo1irpj
 TELEMETRY_URL='wss://telemetry.sydney.ggxchain.io/submit 0'
 
 NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
-CUSTOM_CHAIN_SPEC=sydney
+CUSTOM_CHAIN_SPEC=/home/ggx_user/data-sydney/<NODE NAME>/sydney-testnet.raw.json
 
 RPC_PORT=9933
 PROMETHEUS_PORT=9615

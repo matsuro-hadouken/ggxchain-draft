@@ -48,22 +48,34 @@ sudo apt install build-essential protobuf-compiler pkg-config libssl-dev librust
 This user should not be granted login privileges and should not be allowed to set any passwords.
 
 ```sh
-# Create dedicated no-login user
-sudo adduser --disabled-login --disabled-password ggx_user
+# For example our user name is ggx_user
+GGX_USERNAME='ggx_user'
 ```
 
 ```sh
-# get user shell ( stay here untill we ready to start node )
-sudo su - ggx_user
+# Create dedicated no-login user
+sudo adduser --disabled-login --disabled-password ${GGX_USERNAME}
 ```
 
-* **Set versions** _( Before integrating the parameters, kindly ensure the versions are up-to-date by performing a cross-check. )_
+```sh
+# get user shell ( stay here untill we ready to start the node )
+sudo su - ${GGX_USERNAME}
+```
+
+* **Set variables** _( Before integrating the parameters, kindly ensure the versions are up-to-date by performing a cross-check. )_
+
+We will need `GGX_USERNAME`, `NODE_SYSTEM_NAME` later, please note.
 
 ```sh
 # Set Rust Toolchain and node binary version
 # The entries below can be accidently left outdated and lead to unpredictable consequences
 RUST_TOOLCHAIN='nightly-2023-08-19'
-GGX_NODE_VERSION='v0.1.4'
+GGX_NODE_VERSION='v0.1.5'
+# Below can be set based on your personal preferences
+GGX_USERNAME="$(whoami)"                # process owner
+NODE_SYSTEM_NAME='MyNodeName123'        # used for data folder name for easy identification
+# Make sure no . or any special characters is used ( however some are accepted, but this is outside of scope )
+NODE_PRETTY_NAME='My Node Name 123'     # Telemetry broadcast name
 ```
 
 * **Rust toolchain and additional components**
@@ -131,7 +143,7 @@ _Good place to confirm this is GGXChain public [Dicord](https://discord.gg/ggx) 
 
 #### Folders & Names
 
-* **_Please ensure that `ggx_user` user has read and write permissions._**
+* **_Please ensure that `${GGX_USERNAME}` user has read and write permissions._**
 
 ```sh
 # Create binary home
@@ -143,11 +155,11 @@ cd ~ && mkdir -p "${HOME}/bin"
 echo 'export PATH="${HOME}/bin:$PATH"' >>.bashrc && . .bashrc
 ```
 
-_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. `<NODE NAME>` is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example._
+_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. `${NODE_SYSTEM_NAME}` is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example._
 
 ```sh
 # Create data folder aka BASE_PATH ( we will need this later, remember )
-BASE_PATH="${HOME}/data-sydney/<NODE NAME>"
+BASE_PATH="${HOME}/data-sydney/${NODE_SYSTEM_NAME}"
 mkdir -p ${BASE_PATH}
 ```
 
@@ -169,7 +181,7 @@ ggxchain-node --version
 
 ### Creating Config
 
-Thing to keep in mind when crafting this configuration file:
+Things to keep in mind when crafting this configuration file:
 
 * Adjust **node name**, some special characters will not be accepted as such as `.`
 * **Path should be absolute**, double check if all locations _( created above )_ are in place.
@@ -178,60 +190,55 @@ Thing to keep in mind when crafting this configuration file:
 * `CUSTOM_CHAIN_SPEC` absolute path to chain json file. _( double check which one is currently active on the network )_
 * Variables which can change anytime `BOOT_NODES`, `TELEMETRY_URL` _( always double check )_
 * `NODE_KEY_FILE` you on your own on how to manage your `node.key`. Please follow best practices. Never stop research and improving security.
-* `WS_PORT` `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
+* `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
+* `SYNC_MODE` available methods `full` and `full` _( archive only support full sync )_
 
 ```sh
-# Pull custom chainspec file
-cd ~ && wget https://raw.githubusercontent.com/ggxchain/ggxnode/main/custom-spec-files/sydney-testnet.raw.json
+# Create folder to store configuration
+mkdir -p ${HOME}/conf
 ```
 
 ```sh
-# move to prefered location
-cd ~ && mv sydney-testnet.raw.json /home/ggx_user/data-sydney/<NODE NAME>/
+# Pull custom chainspec file and set permissions
+cd ~ && wget https://raw.githubusercontent.com/ggxchain/ggxnode/main/custom-spec-files/sydney-testnet.raw.json -P ${HOME}/conf -q --show-progress
+chmod 0644 ${HOME}/conf/sydney-testnet.raw.json
 ```
 
-```sh
-# Create unit environment file
-nano ${HOME}/bin/node.conf
-```
+Add the content below, make sure everything up to date, adjust prooning parameters if required.
+`RPC_METHODS` will be set temporaty to `unsafe`, as we need to perform `keys_rotation call` required by **validator**.
+If you setting up passive observer node, set this `safe`
 
-Add the content below, make sure everything up to date
-
-```js
+```bash
+        # Create node configuration
+        cat <<EOF | tee ${HOME}/conf/node.conf
 RPC_METHODS=unsafe
-
-NODE_NAME=<YOUR NODE NAME>
-
-BASE_PATH=/home/ggx_user/data-sydney/<NODE NAME>
-
+NODE_NAME=${NODE_PRETTY_NAME}
+BASE_PATH=/home/${GGX_USERNAME}/data-sydney/${NODE_SYSTEM_NAME}
 BOOT_NODES='/dns/sun.sydney.ggxchain.io/tcp/30333/p2p/12D3KooWGmopnFNtQb2bo1irpjPLJUnmt9K4opTSHTMhYYobB8pC'
 TELEMETRY_URL='wss://telemetry.sydney.ggxchain.io/submit 0'
-
-NODE_KEY_FILE=/home/ggx_user/.node-key/node.key
-CUSTOM_CHAIN_SPEC=/home/ggx_user/data-sydney/<NODE NAME>/sydney-testnet.raw.json
-
+NODE_KEY_FILE=/home/${GGX_USERNAME}/.node-key/node.key
+CUSTOM_CHAIN_SPEC=${HOME}/conf/sydney-testnet.raw.json
 RPC_PORT=9933
 PROMETHEUS_PORT=9615
 CONSENSUS_P2P=30333
-
 RPC_CORS=localhost
-
 LOG_LEVEL=info
-
 STATE_PRUNING=256
 BLOCKS_PRUNING=256
+SYNC_MODE=fast
+EOF
 ```
 
-Save configuration and exit _( this file can be easily updated later though our journey )_
+_( this configuration file can be easily updated later though our journey `${HOME}/conf/node.conf` )_
 
 ```sh
 # Restrict permissions
-chmod 0600 ${HOME}/bin/node.conf
+chmod 0600 ${HOME}/conf/node.conf
 ```
 
 ### Keys Generation
 
-_Private keys are highly sensitive files and should be handled with utmost care. It is essential to ensure maximum protection and prevent any potential exposure. It is strongly recommended to follow best practices for keys management._ _Make sure to keep your private keys private and avoid sharing them publicly. Implement measures to safeguard the confidentiality and integrity of these keys. It is crucial to be aware of GGX Chain node key management techniques to ensure secure handling._
+_Private keys are highly sensitive files and should be handled with utmost care. It is essential to ensure maximum protection and prevent any potential exposure. It is strongly recommended to follow best practices for keys management._ _Make sure to keep your private keys private and avoid sharing them publicly. Implement measures to safeguard the confidentiality and integrity of these keys. It is crucial to be aware of GGX Chain node keys management techniques to ensure secure handling._
 
 ```sh
 # generate node key
@@ -239,124 +246,89 @@ ggxchain-node key generate-node-key --file "${HOME}/.node-key/node.key"
 ```
 
 ```sh
-# we will need atitional key to secure etherium ligh client
-ggxchain-node key generate -w 24 --output-type json --scheme ecdsa >$HOME/.node-key/ecdsa.json
-```
-
-```sh
 # set permissions
 chmod 0600 "${HOME}/.node-key/node.key"
-chmod 0600 "${HOME}/.node-key/ecdsa.json"
-```
-```sh
-# Inspect ecdsa key, we will need passphrase to continue
-cat ${HOME}/.node-key/ecdsa.json | grep secretPhrase
 ```
 
-```sh
-# injected ecdsa key in to local keystore
-# Require data path and passphrase from previous command
-ggxchain-node key insert --key-type beef
-                        --scheme ecdsa \
-                        --suri "<passphrase from ecdsa.json we just generated>" \
-                        --chain=sydney \
-                        -d "${HOME}/data-sydney/<NODE NAME>"
-```
-
-Now we will confirm our procedure succeed just in case. Press ENTER twice to skeep custom URL request.
-
-```sh
-# check keys in keystore
-ggxchain-node key inspect --keystore-path ${HOME}/data-sydney/<NODE NAME>/chains/GGX/keystore/
-```
-
-```sh
-# check previously generated ecdsa key
-ggxchain-node key inspect --keystore-path ~/.node-key
-```
-
-Both keys should be identical, this is mandatory. Additionally we check node public ID.
+Check node public ID
 
 ```sh
 # check node public ID
 ggxchain-node key inspect-node-key --file "${HOME}/.node-key/node.key"
 ```
 
-* Backup key files, encrypt, save securely !
+* Backup encrypt, save securely _( not recommended in production, consult our community for better picture )_
+* Please note, as soon as you ask community regarding best security practices and private keys management, big chance what you will instantly receive multiple private messages. Remember, everyone who sent you private messages are scammers. Always communicate in public chats and avoid any private communications with anyone.
 
 _By design, GGX Chain doesn't require `node.key` backup for security reason. But we are on testnet now, remember this._
-_The last thing to do regarding keys generation, is to understand what we just done, by inspecting folder content so called "keystore"._
-
-```sh
-# check files content here
-cd ${HOME}/data-sydney/<NODE NAME>/chains/GGX/keystore/
-```
-
-_We also don't need `${HOME}/.node-key/ecdsa.json` anymore, burn with fire._
 
 ### Create Systemd Unit Config
 
-To continue we need sudo right
+To continue we need **sudo** right
+
 ```sh
 # Exit from current non-sudo user shell
 exit
 ```
 
-```sh
-# Create systemd usnit configuration file
-sudo nano /etc/systemd/system/ggx-node.service
-```
-
-Add this contend below:
+Our wariables we set previously in user environment will be gone, lets set them again
 
 ```bash
+# Make sure variables are the same as we set before
+GGX_USERNAME='ggx_user'                 # process owner
+NODE_SYSTEM_NAME='MyNodeName123'        # data storage folder name for better recognition
+```
+
+Create systemd unit configuration
+
+```sh
+# Create systemd unit configuration
+cat <<EOF | sudo tee /etc/systemd/system/ggx-node.service > /dev/null
 [Unit]
 Description=GGXChain Node
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-
-User=ggx_user
-Group=ggx_user
+User=${GGX_USERNAME}
+Group=${GGX_USERNAME}
 
 Type=simple
 
-# Absolute path to config file created in a previous step
-EnvironmentFile=/home/ggx_user/bin/node.conf
+EnvironmentFile=/home/${GGX_USERNAME}/conf/node.conf
 
-ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} \
-        --base-path=${BASE_PATH} \
-        --database rocksdb \
-        --sync fast \
-        --no-private-ip \
-        --no-mdns \
-        --state-pruning ${STATE_PRUNING} \
-        --blocks-pruning ${BLOCKS_PRUNING} \
-        --node-key-type ed25519 \
-        --node-key-file ${NODE_KEY_FILE} \
-        --log ${LOG_LEVEL} \
-        --wasm-execution Compiled \
-        --rpc-methods ${RPC_METHODS} \
-        --rpc-cors "localhost" \
-        --rpc-port ${RPC_PORT} \
-        --prometheus-port ${PROMETHEUS_PORT} \
-        --name ${NODE_NAME} \
-        --chain ${CUSTOM_CHAIN_SPEC} \
-        --bootnodes ${BOOT_NODES} \
-        --telemetry-url ${TELEMETRY_URL}
+ExecStart=/home/${GGX_USERNAME}/bin/ggxchain-node \\
+  --port \${CONSENSUS_P2P} \\
+  --base-path=\${BASE_PATH} \\
+  --database rocksdb \\
+  --sync \${SYNC_MODE} \\
+  --no-private-ip \\
+  --no-mdns \\
+  --state-pruning \${STATE_PRUNING} \\
+  --blocks-pruning \${BLOCKS_PRUNING} \\
+  --node-key-type ed25519 \\
+  --node-key-file \${NODE_KEY_FILE} \\
+  --log \${LOG_LEVEL} \\
+  --wasm-execution Compiled \\
+  --rpc-methods \${RPC_METHODS} \\
+  --rpc-cors "localhost" \\
+  --rpc-port \${RPC_PORT} \\
+  --prometheus-port \${PROMETHEUS_PORT} \\
+  --name \${NODE_NAME} \\
+  --chain \${CUSTOM_CHAIN_SPEC} \\
+  --bootnodes \${BOOT_NODES} \\
+  --telemetry-url \${TELEMETRY_URL}
 
 Restart=always
 RestartSec=160
-
-# We give space here for disaster prevention. Make sure system configured accordingly.
 LimitNOFILE=280000
 
 [Install]
 WantedBy=multi-user.target
+EOF
+
 ```
 
-Save and exit
 ```sh
 # Reload configuration
 sudo systemctl daemon-reload && sudo systemctl enable ggx-node.service
@@ -371,9 +343,11 @@ sudo systemctl start ggx-node.service && sudo journalctl -fu ggx-node.service -o
 * _Logs should populate console screen by now, follow `monitoring` and `debugging` section of the documentation from here._
 * _Node should be visible at ==> [Telemetry Web Page](https://telemetry.sydney.ggxchain.io) <==_
 
+Feel free to experiment with parameters in `/bin/node.conf` before taking any serious actions.
+
 **_A little summary of what we just deployed:_**
 
-* `RPC`           _bond to host and exposed on port `$RPC_PORT`, set to `unsafe`_
+* `RPC`           _bond to host and exposed on port `$RPC_PORT`, set to `unsafe` or `safe`_
 * `Prometheus`    _bond to host and exposed on port `$PROMETHEUS_PORT`_
 * `Consensus P2P` _bond to all interfaces and available on port `$CONSENSUS_P2P`_
 
@@ -387,9 +361,10 @@ sudo systemctl start ggx-node.service && sudo journalctl -fu ggx-node.service -o
 
 **Example:**
 ```sh
-ExecStart=/home/ggx_user/bin/ggxchain-node --port ${CONSENSUS_P2P} --validator \
+ExecStart=/home/${GGX_USERNAME}/bin/ggxchain-node --port ${CONSENSUS_P2P} --validator \
 ...
 ```
+
 ```sh
 # Ensure unit configuration is reload
 sudo systemctl daemon-reload
@@ -402,6 +377,7 @@ curl -H "Content-Type: application/json" \
      -d '{"id":1, "jsonrpc":"2.0", "method": "author_rotateKeys", "params":[]}' \
       http://localhost:$RPC_PORT
 ```
+
 * _After successful call, set `$RPC_METHODS` to `safe` and restart `ggx-node.service`_
 * Perform required transactions by using [GGXChain Explorer](https://sydney.art3mis.cloud) interface
 * _Watch [GGXChain Explorer](https://sydney.art3mis.cloud) as your node will about to start validating_

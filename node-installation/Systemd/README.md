@@ -35,7 +35,7 @@ sudo apt update && sudo apt upgrade -y
 * _Reboot server_
 
 ```sh
-sudo apt install git wget curl jq
+sudo apt install git wget curl jq -y
 ```
 
 ```sh
@@ -49,22 +49,22 @@ This user should not be granted login privileges and should not be allowed to se
 
 ```sh
 # For example our user name is ggx_user
-GGX_USERNAME='ggx_user'
+USER_NAME='ggx_user'
 ```
 
 ```sh
 # Create dedicated no-login user
-sudo adduser --disabled-login --disabled-password ${GGX_USERNAME}
+sudo adduser --disabled-login --disabled-password --gecos GECOS ${USER_NAME}
 ```
 
 ```sh
 # get user shell ( stay here untill we ready to start the node )
-sudo su - ${GGX_USERNAME}
+sudo su - ${USER_NAME}
 ```
 
 * **Set variables** _( Before integrating the parameters, kindly ensure the versions are up-to-date by performing a cross-check. )_
 
-We will need `GGX_USERNAME`, `NODE_SYSTEM_NAME` later, please note.
+We will need `USER_NAME`, `NODE_SYSTEM_NAME` later, please note.
 
 ```sh
 # Set Rust Toolchain and node binary version
@@ -72,10 +72,10 @@ We will need `GGX_USERNAME`, `NODE_SYSTEM_NAME` later, please note.
 RUST_TOOLCHAIN='nightly-2023-08-19'
 GGX_NODE_VERSION='v0.1.5'
 # Below can be set based on your personal preferences
-GGX_USERNAME="$(whoami)"                # process owner
+USER_NAME="$(whoami)"                # process owner
 NODE_SYSTEM_NAME='MyNodeName123'        # used for data folder name for easy identification
-# Make sure no . or any special characters is used ( however some are accepted, but this is outside of scope )
-NODE_PRETTY_NAME='My Node Name 123'     # Telemetry broadcast name
+# Make sure no . or any special characters is involved.
+NODE_PRETTY_NAME='My Node Name 123'     # This will be visible on public telemetry dashboard
 ```
 
 * **Rust toolchain and additional components**
@@ -113,8 +113,8 @@ git checkout ${GGX_NODE_VERSION}
 ```
 
 ```sh
-# Build ( Sydney Testnet )
-rustup run ${RUST_TOOLCHAIN} cargo build --release --package ggxchain-node --no-default-features --features="sydney"
+# Build ( Sydney Testnet ) This can take several hours, depends on the computer resources available.
+rustup run ${RUST_TOOLCHAIN} cargo build --locked --release --package ggxchain-node --no-default-features --features="sydney"
 ```
 
 If the build fails for any reason, please reach out to the community validators on [Dicord](https://discord.gg/ggx) for assistance.
@@ -124,7 +124,7 @@ If the build fails for any reason, please reach out to the community validators 
 In order to ensure the provisioning of necessary resources, it is imperative to appropriately configure the system. The approach to achieving this will vary depending on the specific distribution, hardware specifications, kernel version, and other relevant factors. Attempting to provide a comprehensive and universally applicable guide in this context would be unfeasible. Therefore, we will present a concise checklist to facilitate the configuration process.
 
 * Set CPU Governor to Performance
-* Increase Max Open Files Limit to 300000+
+* Increase Max Open Files Limit
 * Make sure this adjustments is preserver on boot
 
 ### Systemd
@@ -135,7 +135,7 @@ At the time of writing this documentation, the network is in the early testnet s
 
 * _Node binary version_
 * _Rust toolchain version_
-* _Working and active bootnode credentials_
+* _Active bootnode credentials_
 * _Correct telemetry link_
 * _Legit chainspec json file_
 
@@ -143,7 +143,7 @@ _Good place to confirm this is GGXChain public [Dicord](https://discord.gg/ggx) 
 
 #### Folders & Names
 
-* **_Please ensure that `${GGX_USERNAME}` user has read and write permissions._**
+* **_Please ensure that `${USER_NAME}` user has read and write permissions._**
 
 ```sh
 # Create binary home
@@ -155,17 +155,18 @@ cd ~ && mkdir -p "${HOME}/bin"
 echo 'export PATH="${HOME}/bin:$PATH"' >>.bashrc && . .bashrc
 ```
 
-_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. `${NODE_SYSTEM_NAME}` is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also for example._
+_At the time of writtining `we are on the Sydney` test network. However, can be set to your prefered location. Variable `${NODE_SYSTEM_NAME}` we set before is just example for better recognition, can be set according personal preference as `db`, `node_1` `data` or anything also._
 
 ```sh
 # Create data folder aka BASE_PATH ( we will need this later, remember )
 BASE_PATH="${HOME}/data-sydney/${NODE_SYSTEM_NAME}"
-mkdir -p ${BASE_PATH}
+mkdir -p ${BASE_PATH} && chmod 0700 ${BASE_PATH}
 ```
 
 ```sh
-# Path to store node key
-mkdir -p ${HOME}/.node-key && chmod 0700 ${HOME}/.node-key
+# Folder path to store node key
+PRIVATE_KEY_STORAGE_FOLDER="${HOME}/.private"
+mkdir -p "${PRIVATE_KEY_STORAGE_FOLDER}" && chmod 0700 "${PRIVATE_KEY_STORAGE_FOLDER}"
 ```
 
 #### Make symlink to previously compiled binary
@@ -181,9 +182,9 @@ ggxchain-node --version
 
 ### Creating Config
 
-Things to keep in mind when crafting this configuration file:
+**This step-by-step tutorial doesn't require any manual action, however just for better understanding of configuration file here is short description:**
 
-* Adjust **node name**, some special characters will not be accepted as such as `.`
+* **node name**, some special characters will not be accepted as such as `.`
 * **Path should be absolute**, double check if all locations _( created above )_ are in place.
 * For _author_rotateKeys_ method we do need `RPC_METHODS` to be `unsafe`, after activation please set to `safe` and **restart**
 * `BASE_PATH` is where database are stored. **Point to the same location we just choose previously**
@@ -191,33 +192,41 @@ Things to keep in mind when crafting this configuration file:
 * Variables which can change anytime `BOOT_NODES`, `TELEMETRY_URL` _( always double check )_
 * `NODE_KEY_FILE` you on your own on how to manage your `node.key`. Please follow best practices. Never stop research and improving security.
 * `RPC_PORT` `PROMETHEUS_PORT` `CONSENSUS_P2P` are flexible and can be set according installation preferences.
-* `SYNC_MODE` available methods `full` and `full` _( archive only support full sync )_
+* `SYNC_MODE` available methods `full` and `fast` _( archive mod only support full sync )_
 
 ```sh
 # Create folder to store configuration
-mkdir -p ${HOME}/conf
+mkdir -p ${HOME}/conf && chmod 0700 ${HOME}/conf
+```
+
+* Always check correct url and json file name before continue here: [Dicord](https://discord.gg/ggx)
+
+```sh
+# Set chainspec json name and url
+CHAIN_SPEC_FILE_NAME='sydney-testnet.raw.json'
+CHAIN_SPEC_URL="https://raw.githubusercontent.com/ggxchain/ggxnode/main/custom-spec-files/${CHAIN_SPEC_FILE_NAME}"
 ```
 
 ```sh
 # Pull custom chainspec file and set permissions
-cd ~ && wget https://raw.githubusercontent.com/ggxchain/ggxnode/main/custom-spec-files/sydney-testnet.raw.json -P ${HOME}/conf -q --show-progress
-chmod 0644 ${HOME}/conf/sydney-testnet.raw.json
+cd ~ && wget "${CHAIN_SPEC_URL}" -P ${HOME}/conf -q --show-progress
+chmod 0644 "${HOME}"/conf/"${CHAIN_SPEC_FILE_NAME}"
 ```
 
-Add the content below, make sure everything up to date, adjust prooning parameters if required.
+Execute command block below, make sure everything up to date, adjust prooning parameters if required.
 `RPC_METHODS` will be set temporaty to `unsafe`, as we need to perform `keys_rotation call` required by **validator**.
-If you setting up passive observer node, set this `safe`
+If you setting up passive observer node, set this to `safe` right after creation.
 
 ```bash
         # Create node configuration
         cat <<EOF | tee ${HOME}/conf/node.conf
 RPC_METHODS=unsafe
 NODE_NAME=${NODE_PRETTY_NAME}
-BASE_PATH=/home/${GGX_USERNAME}/data-sydney/${NODE_SYSTEM_NAME}
+BASE_PATH=/home/${USER_NAME}/data-sydney/${NODE_SYSTEM_NAME}
 BOOT_NODES='/dns/sun.sydney.ggxchain.io/tcp/30333/p2p/12D3KooWGmopnFNtQb2bo1irpjPLJUnmt9K4opTSHTMhYYobB8pC'
 TELEMETRY_URL='wss://telemetry.sydney.ggxchain.io/submit 0'
-NODE_KEY_FILE=/home/${GGX_USERNAME}/.node-key/node.key
-CUSTOM_CHAIN_SPEC=${HOME}/conf/sydney-testnet.raw.json
+NODE_KEY_FILE=${PRIVATE_KEY_STORAGE_FOLDER}/node.key
+CUSTOM_CHAIN_SPEC=${HOME}/conf/${CHAIN_SPEC_FILE_NAME}
 RPC_PORT=9933
 PROMETHEUS_PORT=9615
 CONSENSUS_P2P=30333
@@ -225,7 +234,7 @@ RPC_CORS=localhost
 LOG_LEVEL=info
 STATE_PRUNING=256
 BLOCKS_PRUNING=256
-SYNC_MODE=fast
+SYNC_MODE=full
 EOF
 ```
 
@@ -242,19 +251,19 @@ _Private keys are highly sensitive files and should be handled with utmost care.
 
 ```sh
 # generate node key
-ggxchain-node key generate-node-key --file "${HOME}/.node-key/node.key"
+ggxchain-node key generate-node-key --file "${PRIVATE_KEY_STORAGE_FOLDER}/node.key"
 ```
 
 ```sh
 # set permissions
-chmod 0600 "${HOME}/.node-key/node.key"
+chmod 0600 "${PRIVATE_KEY_STORAGE_FOLDER}/node.key"
 ```
 
 Check node public ID
 
 ```sh
 # check node public ID
-ggxchain-node key inspect-node-key --file "${HOME}/.node-key/node.key"
+ggxchain-node key inspect-node-key --file "${PRIVATE_KEY_STORAGE_FOLDER}/node.key"
 ```
 
 * Backup encrypt, save securely _( not recommended in production, consult our community for better picture )_
@@ -264,19 +273,25 @@ _By design, GGX Chain doesn't require `node.key` backup for security reason. But
 
 ### Create Systemd Unit Config
 
-To continue we need **sudo** right
+To continue we need **sudo** right, but just before exit lets copy our user name and node system name in to clipboard
+
+```sh
+# execute this command and follow instruction
+echo -e "\n# Copy this lines below in to the clipboard: \nUSER_NAME=$(whoami)\nNODE_SYSTEM_NAME=${NODE_SYSTEM_NAME}" && echo
+```
 
 ```sh
 # Exit from current non-sudo user shell
 exit
 ```
 
-Our wariables we set previously in user environment will be gone, lets set them again
+_Our wariables we set previously in user environment will be gone, lets set them again_
 
-```bash
-# Make sure variables are the same as we set before
-GGX_USERNAME='ggx_user'                 # process owner
-NODE_SYSTEM_NAME='MyNodeName123'        # data storage folder name for better recognition
+* Paste copied lines from the step above and press enter to set them for sudo user environment
+
+```sh
+# Check if variables set
+echo " User name: ${USER_NAME}" && echo " Node system name: ${NODE_SYSTEM_NAME}"
 ```
 
 Create systemd unit configuration
@@ -290,14 +305,14 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-User=${GGX_USERNAME}
-Group=${GGX_USERNAME}
+User=${USER_NAME}
+Group=${USER_NAME}
 
 Type=simple
 
-EnvironmentFile=/home/${GGX_USERNAME}/conf/node.conf
+EnvironmentFile=/home/${USER_NAME}/conf/node.conf
 
-ExecStart=/home/${GGX_USERNAME}/bin/ggxchain-node \\
+ExecStart=/home/${USER_NAME}/bin/ggxchain-node \\
   --port \${CONSENSUS_P2P} \\
   --base-path=\${BASE_PATH} \\
   --database rocksdb \\
@@ -361,8 +376,8 @@ Feel free to experiment with parameters in `/bin/node.conf` before taking any se
 
 **Example:**
 ```sh
-ExecStart=/home/${GGX_USERNAME}/bin/ggxchain-node --port ${CONSENSUS_P2P} --validator \
-...
+ExecStart=/home/${USER_NAME}/bin/ggxchain-node --port ${CONSENSUS_P2P} --validator \
+... rest of configuration ...
 ```
 
 ```sh

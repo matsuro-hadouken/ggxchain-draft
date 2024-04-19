@@ -298,7 +298,7 @@ Create systemd unit configuration
 
 ```sh
 # Create systemd unit configuration
-cat <<EOF | sudo tee /etc/systemd/system/ggx-node.service > /dev/null
+sudo cat <<EOF | sudo tee /etc/systemd/system/ggx-node.service > /dev/null
 [Unit]
 Description=GGXChain Node
 Wants=network-online.target

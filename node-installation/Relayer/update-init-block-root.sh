@@ -84,10 +84,6 @@ function check_key_file() {
             exit 1
         fi
 
-    else
-
-        log "INFO" "Permissions on $key_path are already set correctly to 600."
-
     fi
 
     log "INFO" "The signer secret key file at $key_path exists, contains exactly 24 words, and has the correct permissions."

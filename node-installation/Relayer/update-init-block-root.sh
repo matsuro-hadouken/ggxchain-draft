@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Config file which contain our variables is separated and sourced here
-source /home/archive_ggx/conf/relayer.conf
+source "${HOME}/conf/relayer.conf"
 
 # Logging function
 function log() {
@@ -18,22 +18,22 @@ function log() {
         exit 4
     fi
 
-    echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
+    echo "[$timestamp] [$level] $message" >>"$LOG_FILE"
 
 }
 
 # Check dependency
 function check_tools() {
 
-    if ! command -v wget &> /dev/null; then
+    if ! command -v wget &>/dev/null; then
         log "ERROR" "wget is not installed. Please install wget to continue."
         exit 2
     fi
 
-    if ! command -v jq &> /dev/null; then
+    if ! command -v jq &>/dev/null; then
         log "ERROR" "jq is not installed. Please install jq to continue."
         exit 2
-   fi
+    fi
 
 }
 
@@ -58,23 +58,36 @@ function check_key_file() {
         exit 1
     fi
 
-    # Check key file permissions are set to 600
-    local permissions
-    permissions=$(stat -c "%a" "$key_path")
-
-    if [ "$permissions" != "600" ]; then
-        log "ERROR" "Incorrect permissions for $key_path. Expected 600, got $permissions"
-        exit 1
-    fi
-
     # Check if the file contains exactly 24 words
     # WC prevent any sensative content exposure as it reads directly from the file and not stored in RAM
     local word_count
-    word_count=$(wc -w < "$key_path")
+
+    word_count=$(wc -w <"$key_path")
 
     if [ "$word_count" -ne 24 ]; then
         log "ERROR" "The signer secret key file at $key_path does not contain exactly 24 words"
         exit 1
+    fi
+
+    # Check file permissions and fix if not set to 600
+    permissions=$(stat -c "%a" "$key_path")
+
+    if [ "$permissions" != "600" ]; then
+
+        log "ERROR" "Incorrect permissions for $key_path. Expected 600, got $permissions"
+        log "INFO" "Attempting to apply required permissions on $key_path"
+
+        if chmod 0600 "$key_path"; then
+            log "INFO" "Permissions on $key_path corrected to 600 successfully."
+        else
+            log "ERROR" "Failed to set permissions on $key_path to 600."
+            exit 1
+        fi
+
+    else
+
+        log "INFO" "Permissions on $key_path are already set correctly to 600."
+
     fi
 
     log "INFO" "The signer secret key file at $key_path exists, contains exactly 24 words, and has the correct permissions."
@@ -151,7 +164,7 @@ function update_init_block_root() {
 
     local url="${1}"
 
-    validate_url "$url"  # Validate URL before proceeding
+    validate_url "$url" # Validate URL before proceeding
 
     local finalized_root
 
@@ -176,8 +189,12 @@ function update_init_block_root() {
     log "INFO" "Successfully updated init_block_root to $finalized_root in $ETH_INIT_CONFIG_FILE"
 }
 
-check_tools                                 # Ensures necessary tools are available
-ensure_config_files                         # Check and ensure configuration files are in place
-check_key_file                              # check for key file presence ( do not validate )
+log "INFO" "Starting boot sequence ==>"
+
+check_tools         # Ensures necessary tools are available
+ensure_config_files # Check and ensure configuration files are in place
+check_key_file      # check for key file presence ( do not validate )
 
 update_init_block_root "${1:-$DEFAULT_URL}" # Pass the first command line argument to the function or use the default
+
+log "INFO" "Service restarted successfully <=="
